@@ -13,7 +13,6 @@ MAX_LOSS = 5
 
 
 class Logger:
-
     def __init__(self, header, directory_path):
         directory_path = directory_path
         if os.path.exists(directory_path):
@@ -48,7 +47,6 @@ class Logger:
 
 
 class Stat:
-
     def __init__(self, x_label, y_label, update_frequency, directory_path, header):
         self.x_label = x_label
         self.y_label = y_label
@@ -101,12 +99,6 @@ class Stat:
                 temp_values_in_batch = []
         if len(batch_averages_x) > 1:
             plt.plot(batch_averages_x, batch_averages_y, linestyle="--", label="last " + str(big_batch_length) + " average")
-
-        # if len(x) > 1:
-        #     trend_x = x[1:]
-        #     z = np.polyfit(np.array(trend_x), np.array(y[1:]), 1)
-        #     p = np.poly1d(z)
-        #     plt.plot(trend_x, p(trend_x), linestyle="-.",  label="trend")
 
         plt.title(self.header)
         plt.xlabel(x_label)
