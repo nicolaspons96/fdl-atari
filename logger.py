@@ -90,7 +90,7 @@ class Stat:
         temp_values_in_batch = []
         relative_batch_length = big_batch_length/small_batch_length
 
-        for i in xrange(len(y)):
+        for i in range(len(y)):
             temp_values_in_batch.append(y[i])
             if (i+1) % relative_batch_length == 0:
                 if not batch_averages_y:
