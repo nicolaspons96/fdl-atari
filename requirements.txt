@@ -1,0 +1,5 @@
+gym
+atari_py
+matplotlib
+keras
+tensorflow
