@@ -33,7 +33,7 @@ class DDQNGameModel:
         if os.path.isfile(self.model_path):
             self.ddqn.load_weights(self.model_path)
 
-    def _save_model(self):
+    def save_model(self):
         self.ddqn.save_weights(self.model_path)
 
     def save_run(self, score, step, run):
@@ -41,7 +41,7 @@ class DDQNGameModel:
         self.logger.add_step(step)
         self.logger.add_run(run)
     
-    def _get_date(self):
+    def get_date(self):
         return str(datetime.datetime.now().strftime('%Y-%m-%d_%H-%M'))
     
     def remember(self, state, action, reward, next_state, done):
@@ -54,14 +54,13 @@ class DDQNGameModel:
 class DDQNSolver(DDQNGameModel):
 
     def __init__(self, input_shape, action_space):
-        #testing_model_path = "./output/neural_nets/Breakout/ddqn/" + "2019-12-03_00-18" +  "/model.h5"
         testing_model_path = "./assets/Breakout/ddqn/model.h5"
         assert os.path.exists(os.path.dirname(testing_model_path)), "No testing model in: " + str(testing_model_path)
         DDQNGameModel.__init__(self,
                                "DDQN testing",
                                input_shape,
                                action_space,
-                               "./output/logs/Breakout/ddqn/testing/" + self._get_date() + "/",
+                               "./output/logs/testing/" + self.get_date() + "/",
                                testing_model_path)
 
     def move(self, state):
@@ -78,15 +77,15 @@ class DDQNTrainer(DDQNGameModel):
                                "DDQN training",
                                input_shape,
                                action_space,
-                               "./output/logs/Breakout/ddqn/training/" + self._get_date() + "/",
-                               "./output/neural_nets/Breakout/ddqn/" + self._get_date() + "/model.h5")
+                               "./output/logs/training/" + self.get_date() + "/",
+                               "./output/neural_nets/" + self.get_date() + "/model.h5")
 
         if os.path.exists(os.path.dirname(self.model_path)):
             shutil.rmtree(os.path.dirname(self.model_path), ignore_errors=True)
         os.makedirs(os.path.dirname(self.model_path))
 
         self.ddqn_target = ConvolutionalNeuralNetwork(self.input_shape, action_space).model
-        self._reset_target_network()
+        self.reset_target_network()
         self.epsilon = EXPLORATION_MAX
         self.memory = []
 
@@ -110,22 +109,22 @@ class DDQNTrainer(DDQNGameModel):
             return
 
         if total_step % TRAINING_FREQUENCY == 0:
-            loss, accuracy, average_max_q = self._train()
+            loss, accuracy, average_max_q = self.train()
             self.logger.add_loss(loss)
             self.logger.add_accuracy(accuracy)
             self.logger.add_q(average_max_q)
 
-        self._update_epsilon()
+        self.update_epsilon()
 
         if total_step % MODEL_PERSISTENCE_UPDATE_FREQUENCY == 0:
-            self._save_model()
+            self.save_model()
 
         if total_step % TARGET_NETWORK_UPDATE_FREQUENCY == 0:
-            self._reset_target_network()
+            self.reset_target_network()
             print('{{"metric": "epsilon", "value": {}}}'.format(self.epsilon))
             print('{{"metric": "total_step", "value": {}}}'.format(total_step))
 
-    def _train(self):
+    def train(self):
         batch = np.asarray(random.sample(self.memory, BATCH_SIZE))
         if len(batch) < BATCH_SIZE:
             return
@@ -156,9 +155,9 @@ class DDQNTrainer(DDQNGameModel):
         accuracy = fit.history["acc"][0]
         return loss, accuracy, mean(max_q_values)
 
-    def _update_epsilon(self):
+    def update_epsilon(self):
         self.epsilon -= EXPLORATION_DECAY
         self.epsilon = max(EXPLORATION_MIN, self.epsilon)
 
-    def _reset_target_network(self):
+    def reset_target_network(self):
         self.ddqn_target.set_weights(self.ddqn.get_weights())
