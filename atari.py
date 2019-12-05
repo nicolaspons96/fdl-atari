@@ -13,12 +13,12 @@ INPUT_SHAPE = (FRAMES_IN_OBSERVATION, FRAME_SIZE, FRAME_SIZE)
 
 class Atari:
     def __init__(self):
-        game_mode, render, total_step_limit, total_run_limit, clip = self._args()
+        game_mode, render, total_step_limit, total_run_limit, clip = self.get_args()
         env_name = "BreakoutDeterministic-v4"  # Handles frame skipping (4) at every iteration
         env = MainGymWrapper.wrap(gym.make(env_name))
-        self._main_loop(self._game_model(game_mode, env.action_space.n), env, render, total_step_limit, total_run_limit, clip)
+        self.main_loop(self.game_model(game_mode, env.action_space.n), env, render, total_step_limit, total_run_limit, clip)
 
-    def _main_loop(self, game_model, env, render, total_step_limit, total_run_limit, clip):
+    def main_loop(self, game_model, env, render, total_step_limit, total_run_limit, clip):
         run = 0
         total_step = 0
         while True:
@@ -55,7 +55,7 @@ class Atari:
                     game_model.save_run(score, step, run)
                     break
 
-    def _args(self):
+    def get_args(self):
         parser = argparse.ArgumentParser()
         parser.add_argument("-m", "--mode", help="Choose from available modes: ddqn_training, ddqn_testing. Default is 'ddqn_training'.", default="ddqn_training")
         parser.add_argument("-r", "--render", help="Choose if the game should be rendered. Default is 'False'.", default=False, type=bool)
@@ -76,7 +76,10 @@ class Atari:
         print("Total run limit: " + str(total_run_limit))
         return game_mode, render, total_step_limit, total_run_limit, clip
 
-    def _game_model(self, game_mode, action_space):
+    def game_model(self, game_mode, action_space):
+        """
+        action_space: ['NOOP', 'FIRE', 'RIGHT', 'LEFT']
+        """
         if game_mode == "ddqn_training":
             return DDQNTrainer(INPUT_SHAPE, action_space)
         elif game_mode == "ddqn_testing":
@@ -84,7 +87,6 @@ class Atari:
         else:
             print("Unrecognized mode. Use --help")
             exit(1)
-
 
 if __name__ == "__main__":
     Atari()
