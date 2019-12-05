@@ -1,2 +1,3 @@
 venv_atari
 .vscode/
+__pycache__
