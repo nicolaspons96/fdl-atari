@@ -57,7 +57,7 @@ class Atari:
 
     def get_args(self):
         parser = argparse.ArgumentParser()
-        parser.add_argument("-m", "--mode", help="Choose from available modes: ddqn_training, ddqn_testing. Default is 'ddqn_training'.", default="ddqn_training")
+        parser.add_argument("-m", "--mode", help="Choose from available modes: training, testing. Default is 'training'.", default="training")
         parser.add_argument("-r", "--render", help="Choose if the game should be rendered. Default is 'False'.", default=False, type=bool)
         parser.add_argument("-tsl", "--total_step_limit", help="Choose how many total steps (frames visible by agent) should be performed. Default is '5000000'.", default=5000000, type=int)
         parser.add_argument("-trl", "--total_run_limit", help="Choose after how many runs we should stop. Default is None (no limit).", default=None, type=int)
@@ -80,9 +80,9 @@ class Atari:
         """
         action_space: ['NOOP', 'FIRE', 'RIGHT', 'LEFT']
         """
-        if game_mode == "ddqn_training":
+        if game_mode == "training":
             return DDQNTrainer(INPUT_SHAPE, action_space)
-        elif game_mode == "ddqn_testing":
+        elif game_mode == "testing":
             return DDQNSolver(INPUT_SHAPE, action_space)
         else:
             print("Unrecognized mode. Use --help")

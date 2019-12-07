@@ -61,8 +61,8 @@ class Stat:
             mean_value = mean(self.values)
             print(self.y_label + ": (min: " + str(min(self.values)) + ", avg: " + str(mean_value) + ", max: " + str(max(self.values)))
             print('{"metric": "' + self.y_label + '", "value": {}}}'.format(mean_value))
-            self._save_csv(self.directory_path + self.y_label + ".csv", mean_value)
-            self._save_png(input_path=self.directory_path + self.y_label + ".csv",
+            self.save_csv(self.directory_path + self.y_label + ".csv", mean_value)
+            self.save_png(input_path=self.directory_path + self.y_label + ".csv",
                            output_path=self.directory_path + self.y_label + ".png",
                            small_batch_length=self.update_frequency,
                            big_batch_length=self.update_frequency*10,
@@ -70,7 +70,7 @@ class Stat:
                            y_label=self.y_label)
             self.values = []
 
-    def _save_png(self, input_path, output_path, small_batch_length, big_batch_length, x_label, y_label):
+    def save_png(self, input_path, output_path, small_batch_length, big_batch_length, x_label, y_label):
         x = []
         y = []
         with open(input_path, "r") as scores:
@@ -107,7 +107,7 @@ class Stat:
         plt.savefig(output_path, bbox_inches="tight")
         plt.close()
 
-    def _save_csv(self, path, score):
+    def save_csv(self, path, score):
         if not os.path.exists(path):
             with open(path, "w"):
                 pass
