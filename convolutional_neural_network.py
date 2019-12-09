@@ -2,7 +2,7 @@ from keras.optimizers import RMSprop
 from keras.models import Sequential
 from keras.layers import Conv2D, Flatten, Dense
 
-
+# Implementation of the CNN of the paper
 class ConvolutionalNeuralNetwork:
 
     def __init__(self, input_shape, action_space):

@@ -7,14 +7,14 @@ from gym_wrappers import MainGymWrapper
 
 import time
 
-FRAMES_IN_OBSERVATION = 4
-FRAME_SIZE = 84
+FRAMES_IN_OBSERVATION = 4#time
+FRAME_SIZE = 84#84x84 input images
 INPUT_SHAPE = (FRAMES_IN_OBSERVATION, FRAME_SIZE, FRAME_SIZE)
 
 class Atari:
     def __init__(self):
         game_mode, render, total_step_limit, total_run_limit, clip = self.get_args()
-        env_name = "BreakoutDeterministic-v4"  # Handles frame skipping (4) at every iteration
+        env_name = "BreakoutDeterministic-v4"  # Handles frame skipping (4) at every iteration in deterministic env
         env = MainGymWrapper.wrap(gym.make(env_name))
         self.main_loop(self.game_model(game_mode, env.action_space.n), env, render, total_step_limit, total_run_limit, clip)
 
