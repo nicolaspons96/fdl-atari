@@ -33,6 +33,7 @@ class Atari:
             while True:
                 if total_step >= total_step_limit:
                     print("Reached total step limit of: " + str(total_step_limit))
+                    game_model.save_model()
                     exit(0)
                 total_step += 1
                 step += 1
@@ -54,10 +55,11 @@ class Atari:
                 if done:
                     game_model.save_run(score, step, run)
                     break
+        game_model.save_model()
 
     def get_args(self):
         parser = argparse.ArgumentParser()
-        parser.add_argument("-m", "--mode", help="Choose from available modes: training, testing. Default is 'training'.", default="training")
+        parser.add_argument("-m", "--mode", help="Choose from available modes: training, testing, best. Default is 'training'.", default="training")
         parser.add_argument("-r", "--render", help="Choose if the game should be rendered. Default is 'False'.", default=False, type=bool)
         parser.add_argument("-tsl", "--total_step_limit", help="Choose how many total steps (frames visible by agent) should be performed. Default is '5000000'.", default=5000000, type=int)
         parser.add_argument("-trl", "--total_run_limit", help="Choose after how many runs we should stop. Default is None (no limit).", default=None, type=int)
@@ -82,8 +84,10 @@ class Atari:
         """
         if game_mode == "training":
             return DDQNTrainer(INPUT_SHAPE, action_space)
+        elif game_mode == "best":
+            return DDQNSolver(INPUT_SHAPE, action_space, is_best=True)
         elif game_mode == "testing":
-            return DDQNSolver(INPUT_SHAPE, action_space)
+            return DDQNSolver(INPUT_SHAPE, action_space, is_best=False)
         else:
             print("Unrecognized mode. Use --help")
             exit(1)

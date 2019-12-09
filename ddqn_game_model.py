@@ -1,5 +1,6 @@
 import numpy as np
 import os
+import glob
 import random
 import shutil
 import datetime
@@ -35,6 +36,7 @@ class DDQNGameModel:
 
     def save_model(self):
         self.ddqn.save_weights(self.model_path)
+        print('Model saved')
 
     def save_run(self, score, step, run):
         self.logger.add_score(score)
@@ -53,8 +55,13 @@ class DDQNGameModel:
 
 class DDQNSolver(DDQNGameModel):
 
-    def __init__(self, input_shape, action_space):
-        testing_model_path = "./assets/Breakout/ddqn/model.h5"
+    def __init__(self, input_shape, action_space, is_best=False):
+        if is_best:
+            testing_model_path = "./assets/Breakout/ddqn/model.h5"
+        else:
+            list_of_files = glob.glob('./output/neural_nets/')
+            latest_file = max(list_of_files, key=os.path.getctime)
+            testing_model_path = os.path.join(latest_file, "model.h5")
         assert os.path.exists(os.path.dirname(testing_model_path)), "No testing model in: " + str(testing_model_path)
         DDQNGameModel.__init__(self,
                                "DDQN testing",
@@ -95,12 +102,12 @@ class DDQNTrainer(DDQNGameModel):
         q_values = self.ddqn.predict(np.expand_dims(np.asarray(state).astype(np.float64), axis=0), batch_size=1)
         return np.argmax(q_values[0])
 
-    def remember(self, current_state, action, reward, next_state, terminal):
+    def remember(self, current_state, action, reward, next_state, done):
         self.memory.append({"current_state": current_state,
                             "action": action,
                             "reward": reward,
                             "next_state": next_state,
-                            "terminal": terminal})
+                            "done": done})
         if len(self.memory) > MEMORY_SIZE:
             self.memory.pop(0)
 
@@ -140,7 +147,7 @@ class DDQNTrainer(DDQNGameModel):
             next_state_prediction = self.ddqn_target.predict(next_state).ravel()
             next_q_value = np.max(next_state_prediction)
             q = list(self.ddqn.predict(current_state)[0])
-            if entry["terminal"]:
+            if entry["done"]:
                 q[entry["action"]] = entry["reward"]
             else:
                 q[entry["action"]] = entry["reward"] + GAMMA * next_q_value
